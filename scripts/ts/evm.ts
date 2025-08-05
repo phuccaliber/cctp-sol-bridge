@@ -32,10 +32,16 @@ const getContracts = () => {
         MESSAGE_TRANSMITTER_V2_EVM_ABI,
         wallet
     );
+    const cctpAdapterContract = new ethers.Contract(
+        process.env.EVM_CCTP_ADAPTER_ADDRESS!,
+        MESSAGE_TRANSMITTER_V2_EVM_ABI,
+        wallet
+    );
     return {
         usdcApproveContract,
         tokenMessengerV2Contract,
         messageTransmitterV2Contract,
+        cctpAdapterContract,
     };
 }
 
@@ -118,8 +124,9 @@ export const depositForBurnEvmWithHook = async (
     attestation: string
   ) => {
     console.log("Receiving message on EVM...");
-    const { messageTransmitterV2Contract } = getContracts();
-    const receiveMessageTx = await messageTransmitterV2Contract.receiveMessage(
+    const { cctpAdapterContract } = getContracts();
+    console.log("CCTPAdapter address:", await cctpAdapterContract.getAddress());
+    const receiveMessageTx = await cctpAdapterContract.receiveMessage(
       message,
       attestation
     );
