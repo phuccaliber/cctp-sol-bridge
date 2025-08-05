@@ -3,7 +3,20 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-foundry": "^1.2.0",
     "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@types/node": "^24.2.0",
     "hardhat": "^2.26.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
-  }
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.31.1",
+    "@solana/spl-token": "^0.4.13",
+    "dotenv": "^17.2.1",
+    "ethers": "^6.15.0",
+    "zx": "^8.7.2"
+  },
+  "scripts": {
+    "bridgeV2": "ts-node scripts/ts/bridgeV2.ts"
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
