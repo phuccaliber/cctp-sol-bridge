@@ -112,3 +112,21 @@ export const depositForBurnEvmWithHook = async (
     }
     return depositForBurnTxReceipt.hash;
   };
+
+  export const receiveMessageEvm = async (
+    message: string,
+    attestation: string
+  ) => {
+    console.log("Receiving message on EVM...");
+    const { messageTransmitterV2Contract } = getContracts();
+    const receiveMessageTx = await messageTransmitterV2Contract.receiveMessage(
+      message,
+      attestation
+    );
+    const receiveMessageTxReceipt = await receiveMessageTx.wait();
+    if (receiveMessageTxReceipt.status != 1) {
+      console.error("Failed to receive message", receiveMessageTxReceipt);
+      throw new Error("Failed to receive message");
+    }
+    return receiveMessageTxReceipt.hash;
+  };

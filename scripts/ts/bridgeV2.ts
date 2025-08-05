@@ -1,6 +1,7 @@
 import { minimist } from "zx";
-import { depositForBurnEvm, depositForBurnEvmWithHook } from "./evm";
-import { receiveMessageSol } from "./solana";
+import { BN } from "@coral-xyz/anchor";
+import { depositForBurnEvm, depositForBurnEvmWithHook, receiveMessageEvm } from "./evm";
+import { depositForBurnSol, receiveMessageSol } from "./solana";
 
 enum CommandName {
     Sol2Evm = "sol2evm",
@@ -59,6 +60,21 @@ const main = async () => {
 
     } else if (commandName === CommandName.Sol2Evm) {
         console.log("Sol2Evm");
+        const depositTxHash = await depositForBurnSol(
+            new BN(args.amount),
+            new BN(args.maxFee),
+            args.minFinalityThreshold
+          );
+        console.log("Deposit txHash:", depositTxHash);
+        const attestationResponse = await fetchAttestation(
+          depositTxHash,
+          Number(process.env.SOL_DOMAIN)
+        );
+        const receiveTxHash = await receiveMessageEvm(
+          attestationResponse.message,
+          attestationResponse.attestation
+        );
+        console.log("ReceiveMessage txHash:", receiveTxHash);
     } else if (commandName === CommandName.ReclaimEventAccount) {
         console.log("ReclaimEventAccount");
     } else {

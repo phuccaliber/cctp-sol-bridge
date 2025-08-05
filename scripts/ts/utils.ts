@@ -2,6 +2,9 @@ import * as anchor from "@coral-xyz/anchor";
 import { PublicKey } from "@solana/web3.js";
 
 export const hexToBytes = (hex: string): Buffer => Buffer.from(hex.replace("0x", ""), "hex");
+export const evmAddressToBytes32 = (address: string): string =>
+    `0x000000000000000000000000${address.replace("0x", "")}`;
+
 
 export const decodeEventNonceFromMessageV2 = (messageHex: string): Buffer => {
     const nonceIndex = 12;
@@ -41,4 +44,3 @@ export const findProgramAddress = (
     const res = PublicKey.findProgramAddressSync(seeds, programId);
     return { publicKey: res[0], bump: res[1] };
 };
-
