@@ -308,3 +308,57 @@ export const depositForBurnSol = async (
         .signers([messageSentEventAccountKeypair])
         .rpc();
 };
+
+export const depositForBurnSolWithHook = async (
+    amount: BN,
+    maxFee: BN,
+    minFinalityThreshold: number,
+    hookData: Buffer
+  ): Promise<string> => {
+    console.log("Depositing for burn on Solana with hook...");
+    const destinationDomain = Number(process.env.EVM_DOMAIN);
+    const mintRecipient = new PublicKey(
+      getBytes(evmAddressToBytes32(process.env.EVM_USER_ADDRESS!))
+    );
+
+
+    const provider = getAnchorConnection();
+    const { messageTransmitterProgram, tokenMessengerMinterProgram } = getProgramsV2(provider);
+    const usdcAddress = new PublicKey(process.env.SOL_USDC_ADDRESS!);
+    const userTokenAccount = new PublicKey(process.env.SOL_USER_TOKEN_ACCOUNT!);
+    const pdas = getDepositForBurnPdasV2(
+      {
+        messageTransmitterProgram,
+        tokenMessengerMinterProgram,
+      },
+      usdcAddress,
+      destinationDomain
+    );
+    const destinationCaller = process.env.SOL_DESTINATION_CALLER || PublicKey.default;
+    // Generate a new keypair for the MessageSent event account.
+    const messageSentEventAccountKeypair = Keypair.generate();
+
+    return await tokenMessengerMinterProgram.methods
+      .depositForBurnWithHook({
+        amount,
+        destinationDomain,
+        mintRecipient,
+        maxFee,
+        minFinalityThreshold,
+        destinationCaller,
+        hookData,
+      })
+      .accounts({
+        eventRentPayer: provider.wallet.publicKey,
+        burnTokenAccount: userTokenAccount,
+        messageTransmitter: pdas.messageTransmitterAccount.publicKey,
+        tokenMessenger: pdas.tokenMessengerAccount.publicKey,
+        remoteTokenMessenger: pdas.remoteTokenMessengerKey.publicKey,
+        tokenMinter: pdas.tokenMinterAccount.publicKey,
+        burnTokenMint: usdcAddress,
+        messageSentEventData: messageSentEventAccountKeypair.publicKey,
+        program: tokenMessengerMinterProgram.programId,
+      })
+      .signers([messageSentEventAccountKeypair])
+      .rpc();
+  };
